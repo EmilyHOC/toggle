@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+    <!--声明当前页面的编码集：charset=gbk,gbk2312(中文编码),utf-8(国际编码)-->
+    <meta http-equiv="Content-Type" content="text/html; charset=GBK">
+    <!--当前页面的三要素-->
+    <title>图片切换</title>
+    <meta name="Keywords" content="关键词,关键词">
+    <meta name="Description" content="">
+    <!--css,js-->
+    <style type="text/css">
+        *{margin:0;padding:0;}
+        img{border:none;}
+        ul li{list-style:none;}
+        /*背景 start*/
+        .bg{width:100%;height:300px;background:#a534d6;position:relative;}
+        /*背景图片 start*/
+        .b_img{width:760px;height:300px;overflow:hidden;margin:50px auto;}
+        /*背景图片 end*/
+        /*图片下方的按钮 start*/
+        .bg .nav{position:absolute;bottom:10px;left:46%;background:#000;opacity:0.5;filter:alpha(opacity=50);border-radius:25px;}
+        .bg .nav ul{display:inline-block;padding:5px 9px;}
+        .bg .nav ul li{float:left;width:10px;height:10px;border:1px solid #fff;border-radius:10px;margin:0 5px;}
+        .bg .nav ul .select{background:#fff;}
+        .bg .btn{width:46px;height:70px;background:url("img/icon.png");position:absolute;display:none;}
+        .bg .show{display:block;}
+        .bg .b_pre{top:40%;left:300px;background-position:49px 0px;}
+        .bg .b_next{top:40%;left:1014px;background-position:0px 309px;}
+        /*图片下方的按钮 end*/
+        /*背景 end*/
+    </style>
+</head>
+<body>
+<div class="bg">
+    <ul class="b_img">
+        <li>
+            <a href="#">
+                <img src="img/banner-1.jpg" width="760" height="300" alt=""/>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <img src="img/banner-2.jpg" width="760" height="300" alt=""/>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <img src="img/banner-3.jpg" width="760" height="300" alt=""/>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <img src="img/banner-4.jpg" width="760" height="300" alt=""/>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <img src="img/banner-5.jpg" width="760" height="300" alt=""/>
+            </a>
+        </li>
+    </ul>
+
+    <div class="nav">
+        <ul>
+            <li class="select" data-color="#a534d6"></li>
+            <li data-color="#6365ce"></li>
+            <li data-color="#4a4d9c"></li>
+            <li data-color="#523484"></li>
+            <li data-color="#009ee7"></li>
+        </ul>
+    </div>
+    <a href="#" class="btn b_pre"></a>
+    <a href="#" class="btn b_next"></a>
+</div>
+<script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function(){
+        // 定义一个按钮的索引
+        var index = 0;
+        // 定义一个是否播放的属性，因为要判断鼠标停留在图片上的时候停止播放
+        var play_setInterval = null;
+        // 开始自动切换
+        auto_banner();
+        // 按钮的显与隐
+        $(".bg").mouseover(function(){
+            $(".btn").addClass("show");
+            // 鼠标划在上面时候停止播放
+            clearInterval(play_setInterval);
+        }).mouseout(function(){
+            $(".btn").removeClass("show");
+            auto_banner();
+        });
+        // 第一种：下标与图片联动
+        // 先是做下标动
+        $(".nav").find("li").mouseover(function(){
+            // this 表示当前的li；siblings是他的兄弟元素，没有select就add；有就remove
+            $(this).addClass("select").siblings().removeClass("select");
+            // 图片的下标的联动的
+            // 第一条件就是获取图片的下标
+            var _index = $(this).index();
+            // 因为要下标和按钮对应
+            index = _index;
+            // 第二条件就是让图片根据下标消失
+            $(".b_img").find("li").eq(_index).fadeIn(1000).siblings().hide();
+            // 如果背景图片是白色；在切换过程中会有刺眼的感觉，所以要在切换过程中更改背景颜色
+            // 获取背景颜色
+            var _background = $(this).data("color");
+            // 通过css样式更改背景颜色
+            $(this).parents(".bg").fadeIn(1000).css("background",_background);
+        });
+        // 第二种：按钮与图片联动
+        // 既然是按钮；就是需要点击(前进按钮)
+        $(".b_next").click(function(){
+            // 每点击一次，索引值加一
+            index ++;
+            // 索引长度 注意是length而不是length()
+            var _length = $(".nav").find("li").length;
+            // 当索引值大于索引长度的时候归零
+            if (index >= _length){index = 0;}
+            // 点击按钮图片切换
+            $(".b_img").find("li").eq(index).fadeIn(1000).siblings().hide();
+            // 点击按钮图片背景切换
+            var _background = $(".nav").find("li").eq(index).data("color");
+            $(this).parents(".bg").fadeIn(1000).css("background",_background);
+            // 点击按钮下标切换
+            $(".nav").find("li").eq(index).addClass("select").siblings().removeClass("select");
+        });
+        // 后退按钮
+        $(".b_pre").click(function(){
+            index --;
+            var _length = $(".nav").find("li").length;
+            if (index <0){index = _length - 1;}
+            $(".b_img").find("li").eq(index).fadeIn(1000).siblings().hide();
+            var _background = $(".nav").find("li").eq(index).data("color");
+            $(this).parents(".bg").fadeIn(1000).css("background",_background);
+            $(".nav").find("li").eq(index).addClass("select").siblings().removeClass("select");
+        });
+        // 自动切换
+        function auto_banner(){
+            var _length = $(".nav").find("li").length;
+            play_setInterval = setInterval(function(){
+                if(index > _length){index = _length; }
+                $(".b_img").find("li").eq(index).fadeIn(1000).siblings().hide();
+                var _background = $(".nav").find("li").eq(index).data("color");
+                $(".bg").fadeIn(1000).css("background",_background);
+                $(".nav").find("li").eq(index).addClass("select").siblings().removeClass("select");
+                if(index == _length){index = 0;}
+                else{index ++; }
+            },2000);
+        };
+    });
+</script>
+</body>
+</html>
